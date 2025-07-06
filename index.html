@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IntelliFlight Delay Predictor</title>
+
+  <style>
+    body { font-family: Arial; padding: 2rem; max-width: 600px; margin: auto; }
+    label, input, select { display: block; margin: 0.5rem 0; width: 100%; }
+    button { padding: 0.5rem 1rem; margin-top: 1rem; }
+    #result { margin-top: 2rem; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>✈️ IntelliFlight Delay Prediction</h2>
+
+  <label>Airline ID (int):</label>
+  <input type="number" id="airline" value="0">
+
+  <label>Origin Airport ID (int):</label>
+  <input type="number" id="origin" value="12">
+
+  <label>Destination Airport ID (int):</label>
+  <input type="number" id="destination" value="34">
+
+  <label>Distance (miles):</label>
+  <input type="number" id="distance" value="450">
+
+  <label>Scheduled Departure (hhmm):</label>
+  <input type="number" id="departure" value="1530">
+
+  <button onclick="predict()">Predict Delay</button>
+
+  <div id="result"></div>
+
+  <script>
+    async function predict() {
+      const payload = {
+        AIRLINE: parseInt(document.getElementById('airline').value),
+        ORIGIN_AIRPORT: parseInt(document.getElementById('origin').value),
+        DESTINATION_AIRPORT: parseInt(document.getElementById('destination').value),
+        DISTANCE: parseFloat(document.getElementById('distance').value),
+        SCHEDULED_DEPARTURE: parseInt(document.getElementById('departure').value)
+      };
+
+      try {
+        const res = await fetch('http://localhost:3000/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        document.getElementById('result').textContent = `🚦 Delay: ${data.delayed ? 'Yes' : 'No'} | Confidence: ${(data.confidence * 100).toFixed(2)}%`;
+      } catch (err) {
+        console.error(err);
+        document.getElementById('result').textContent = '❌ Failed to fetch prediction.';
+      }
+    }
+  </script>
+</body>
+</html>
